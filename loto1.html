@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Máy quay số Lô Tô 1-90 Không Lặp</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: #fff;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: rgba(0, 0, 0, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        padding: 40px;
+        width: 100%;
+        max-width: 1100px;
+        text-align: center;
+        border: 2px solid #fdbb2d;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+        color: #fdbb2d;
+        text-shadow: 0 0 10px rgba(253, 187, 45, 0.5);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        color: #ddd;
+      }
+
+      .number-display {
+        font-size: 10rem;
+        font-weight: bold;
+        color: #fdbb2d;
+        text-shadow: 0 0 20px rgba(253, 187, 45, 0.8);
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 30px 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 20px;
+        border: 3px solid #1a2a6c;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .number-display::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(253, 187, 45, 0.1) 0%,
+          rgba(0, 0, 0, 0) 70%
+        );
+        z-index: -1;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 18px 20px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 160px;
+      }
+
+      .btn-start {
+        background-color: #2ecc71;
+        color: white;
+      }
+
+      .btn-start:hover:not(:disabled) {
+        background-color: #27ae60;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(46, 204, 113, 0.4);
+      }
+
+      .btn-pause {
+        background-color: #e74c3c;
+        color: white;
+      }
+
+      .btn-pause:hover:not(:disabled) {
+        background-color: #c0392b;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(231, 76, 60, 0.4);
+      }
+
+      .btn-reset {
+        background-color: #3498db;
+        color: white;
+      }
+
+      .btn-reset:hover:not(:disabled) {
+        background-color: #2980b9;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
+      }
+
+      .btn-sound {
+        background-color: #9b59b6;
+        color: white;
+      }
+
+      .btn-sound:hover:not(:disabled) {
+        background-color: #8e44ad;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(155, 89, 182, 0.4);
+      }
+
+      .btn-check {
+        background-color: #f39c12;
+        color: white;
+      }
+
+      .btn-check:hover:not(:disabled) {
+        background-color: #d68910;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(243, 156, 18, 0.4);
+      }
+
+      .btn-time {
+        background-color: #1abc9c;
+        color: white;
+      }
+
+      .btn-time:hover:not(:disabled) {
+        background-color: #16a085;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(26, 188, 156, 0.4);
+      }
+
+      .btn:disabled {
+        background-color: #7f8c8d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        opacity: 0.7;
+      }
+
+      .status {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .timer-container {
+        background-color: rgba(26, 42, 108, 0.8);
+        border-radius: 15px;
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #fdbb2d;
+      }
+
+      .timer-icon {
+        font-size: 1.5rem;
+        color: #fdbb2d;
+      }
+
+      .timer-text {
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+
+      .timer {
+        font-size: 1.3rem;
+        color: #fdbb2d;
+        font-weight: bold;
+      }
+
+      .progress-container {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        border: 1px solid #1a2a6c;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background-color: #1a2a6c;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #fdbb2d);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+        width: 0%;
+      }
+
+      .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1rem;
+        margin-bottom: 5px;
+      }
+
+      .status-active {
+        background-color: rgba(46, 204, 113, 0.2);
+        padding: 12px 25px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #2ecc71;
+      }
+
+      .status-paused {
+        background-color: rgba(231, 76, 60, 0.2);
+        padding: 12px 25px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #e74c3c;
+      }
+
+      .status-completed {
+        background-color: rgba(155, 89, 182, 0.2);
+        padding: 12px 25px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #9b59b6;
+      }
+
+      .audio-status {
+        background-color: rgba(155, 89, 182, 0.2);
+        padding: 12px 25px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #9b59b6;
+      }
+
+      .audio-icon {
+        font-size: 1.5rem;
+      }
+
+      .history-container {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 1px solid #1a2a6c;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .history-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #fdbb2d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: sticky;
+        top: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        z-index: 10;
+      }
+
+      .history-numbers {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 8px;
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .history-number {
+        background-color: #1a2a6c;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        border: 2px solid #fdbb2d;
+        transition: all 0.3s ease;
+        margin: 0 auto;
+      }
+
+      .history-number.recent {
+        background-color: #fdbb2d;
+        color: #1a2a6c;
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(253, 187, 45, 0.7);
+      }
+
+      .history-number.found {
+        background-color: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+        animation: pulse 0.5s ease-in-out 3;
+      }
+
+      .history-number.used {
+        background-color: #2ecc71;
+        color: white;
+        border-color: #2ecc71;
+      }
+
+      .instructions {
+        margin-top: 25px;
+        font-size: 1rem;
+        color: #ddd;
+        line-height: 1.5;
+        padding: 15px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        text-align: left;
+      }
+
+      .instructions ul {
+        margin-left: 20px;
+        margin-top: 10px;
+      }
+
+      .instructions li {
+        margin-bottom: 5px;
+      }
+
+      .warning {
+        background-color: rgba(231, 76, 60, 0.2);
+        border: 1px solid #e74c3c;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background-color: rgba(0, 0, 0, 0.9);
+        padding: 30px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        border: 2px solid #fdbb2d;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #fdbb2d;
+        text-align: center;
+      }
+
+      .modal-input {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.5rem;
+        text-align: center;
+        border-radius: 10px;
+        border: 2px solid #1a2a6c;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      .modal-input:focus {
+        outline: none;
+        border-color: #fdbb2d;
+      }
+
+      .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .modal-btn {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .modal-btn.confirm {
+        background-color: #2ecc71;
+        color: white;
+      }
+
+      .modal-btn.confirm:hover {
+        background-color: #27ae60;
+      }
+
+      .modal-btn.cancel {
+        background-color: #e74c3c;
+        color: white;
+      }
+
+      .modal-btn.cancel:hover {
+        background-color: #c0392b;
+      }
+
+      .result-message {
+        font-size: 1.3rem;
+        text-align: center;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        display: none;
+      }
+
+      .result-success {
+        background-color: rgba(46, 204, 113, 0.2);
+        border: 2px solid #2ecc71;
+        color: #2ecc71;
+      }
+
+      .result-failure {
+        background-color: rgba(231, 76, 60, 0.2);
+        border: 2px solid #e74c3c;
+        color: #e74c3c;
+      }
+
+      .time-info {
+        font-size: 1rem;
+        color: #fdbb2d;
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      @media (max-width: 1024px) {
+        .history-numbers {
+          grid-template-columns: repeat(8, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 25px;
+        }
+
+        h1 {
+          font-size: 2.2rem;
+        }
+
+        .number-display {
+          font-size: 7rem;
+          height: 160px;
+        }
+
+        .btn {
+          padding: 15px 15px;
+          min-width: 140px;
+          font-size: 1rem;
+        }
+
+        .controls {
+          gap: 10px;
+        }
+
+        .status {
+          flex-direction: column;
+        }
+
+        .history-numbers {
+          grid-template-columns: repeat(6, 1fr);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .number-display {
+          font-size: 5rem;
+          height: 140px;
+        }
+
+        .btn {
+          padding: 12px 10px;
+          min-width: 120px;
+          font-size: 0.9rem;
+        }
+
+        .history-number {
+          width: 40px;
+          height: 40px;
+          font-size: 1rem;
+        }
+
+        .history-numbers {
+          grid-template-columns: repeat(5, 1fr);
+        }
+      }
+
+      /* Animation cho số đang quay */
+      @keyframes spin {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .spinning {
+        animation: spin 0.2s infinite;
+      }
+
+      /* Animation cho số mới xuất hiện */
+      @keyframes appear {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .appear {
+        animation: appear 0.5s ease-out;
+      }
+
+      /* Animation cho số tìm thấy */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><i class="fas fa-dice"></i> Máy Quay Số Lô Tô 1-90</h1>
+      <p class="subtitle">
+        Tự động quay số không lặp - Thời gian:
+        <span id="currentInterval">3</span> giây
+      </p>
+
+      <div class="progress-container">
+        <div class="progress-text">
+          <span>Tiến độ: <span id="progressCount">0</span>/90 số</span>
+          <span><span id="remainingCount">90</span> số còn lại</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="status">
+        <div class="timer-container">
+          <i class="fas fa-clock timer-icon"></i>
+          <span class="timer-text">Số tiếp theo sau:</span>
+          <span class="timer" id="timer">3</span>
+          <span class="timer-text">giây</span>
+        </div>
+
+        <div class="status-active" id="statusActive" style="display: none">
+          <i class="fas fa-play-circle status-icon"></i>
+          <span>Đang chạy tự động</span>
+        </div>
+
+        <div class="status-paused" id="statusPaused">
+          <i class="fas fa-pause-circle status-icon"></i>
+          <span>Đã tạm dừng</span>
+        </div>
+
+        <div
+          class="status-completed"
+          id="statusCompleted"
+          style="display: none"
+        >
+          <i class="fas fa-flag-checkered status-icon"></i>
+          <span>Đã quay đủ 90 số!</span>
+        </div>
+
+        <div class="audio-status" id="audioStatus">
+          <i class="fas fa-volume-up audio-icon"></i>
+          <span>Audio: Bật</span>
+        </div>
+      </div>
+
+      <div class="number-display" id="numberDisplay">00</div>
+
+      <div class="controls">
+        <button class="btn btn-start" id="startBtn">
+          <i class="fas fa-play"></i> Bắt đầu
+        </button>
+        <button class="btn btn-pause" id="pauseBtn" disabled>
+          <i class="fas fa-pause"></i> Tạm dừng
+        </button>
+        <button class="btn btn-reset" id="resetBtn">
+          <i class="fas fa-redo"></i> Làm mới
+        </button>
+        <button class="btn btn-sound" id="soundBtn">
+          <i class="fas fa-volume-up"></i> Tắt tiếng
+        </button>
+        <button class="btn btn-check" id="checkBtn">
+          <i class="fas fa-search"></i> Dò số
+        </button>
+        <button class="btn btn-time" id="timeBtn">
+          <i class="fas fa-cog"></i> Thời gian
+        </button>
+      </div>
+
+      <div class="history-container">
+        <h3 class="history-title">
+          <i class="fas fa-history"></i> Lịch sử quay số (<span
+            id="historyCount"
+            >0</span
+          >/90)
+        </h3>
+        <div class="history-numbers" id="historyNumbers">
+          <!-- Các số đã quay sẽ hiển thị ở đây -->
+        </div>
+      </div>
+
+      <div class="result-message" id="resultMessage"></div>
+
+      <div class="instructions">
+        <p><strong>Hướng dẫn sử dụng:</strong></p>
+        <ul>
+          <li>
+            <strong>Bắt đầu</strong>: Hệ thống tự động tạo số ngẫu nhiên không
+            lặp mỗi <span id="intervalDisplay">3</span> giây.
+          </li>
+          <li><strong>Tạm dừng</strong>: Dừng quá trình tự động.</li>
+          <li>
+            <strong>Làm mới</strong>: Reset về 00 và xóa lịch sử, bắt đầu lại từ
+            đầu.
+          </li>
+          <li>
+            <strong>Tắt tiếng/Bật tiếng</strong>: Điều khiển âm thanh đọc số.
+          </li>
+          <li><strong>Dò số</strong>: Kiểm tra số có trong lịch sử không.</li>
+          <li>
+            <strong>Thời gian</strong>: Thay đổi thời gian tự động giữa các số
+            (1-10 giây).
+          </li>
+          <li>
+            <strong>Đặc điểm</strong>: Mỗi số từ 1-90 chỉ xuất hiện 1 lần duy
+            nhất. Khi đủ 90 số sẽ tự động dừng.
+          </li>
+        </ul>
+
+        <div class="warning" id="audioWarning" style="display: none">
+          <p>
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Lưu ý:</strong> Trình duyệt của bạn có thể cần cho phép âm
+            thanh để nghe đọc số. Nếu không nghe thấy tiếng, hãy kiểm tra cài
+            đặt âm thanh trình duyệt.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal dò số -->
+    <div class="modal" id="checkModal">
+      <div class="modal-content">
+        <h2 class="modal-title"><i class="fas fa-search"></i> Dò số</h2>
+        <p style="text-align: center; margin-bottom: 20px">
+          Nhập số từ 1 đến 90 để kiểm tra:
+        </p>
+        <input
+          type="number"
+          class="modal-input"
+          id="checkNumberInput"
+          min="1"
+          max="90"
+          placeholder="Nhập số..."
+        />
+        <div class="modal-buttons">
+          <button class="modal-btn confirm" id="checkConfirmBtn">
+            Kiểm tra
+          </button>
+          <button class="modal-btn cancel" id="checkCancelBtn">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal chỉnh thời gian -->
+    <div class="modal" id="timeModal">
+      <div class="modal-content">
+        <h2 class="modal-title"><i class="fas fa-cog"></i> Chỉnh thời gian</h2>
+        <p style="text-align: center; margin-bottom: 20px">
+          Nhập thời gian giữa các số (giây):
+        </p>
+        <input
+          type="number"
+          class="modal-input"
+          id="timeIntervalInput"
+          min="1"
+          max="10"
+          value="3"
+          placeholder="Nhập số giây..."
+        />
+        <div class="time-info">Giá trị hợp lệ: từ 1 đến 10 giây</div>
+        <div class="modal-buttons">
+          <button class="modal-btn confirm" id="timeConfirmBtn">
+            Cập nhật
+          </button>
+          <button class="modal-btn cancel" id="timeCancelBtn">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Các biến toàn cục
+      let autoInterval = null;
+      let timerInterval = null;
+      let isAutoRunning = false;
+      let currentNumber = 0;
+      let allNumbers = []; // Tất cả số từ 1-90
+      let availableNumbers = []; // Số còn lại chưa quay
+      let history = []; // Lịch sử các số đã quay
+      let timeLeft = 3; // Thời gian đếm ngược
+      let intervalTime = 3; // Thời gian giữa các số (giây) - mặc định 3
+      let soundEnabled = true; // Trạng thái âm thanh
+      const totalNumbers = 90; // Tổng số lượng số
+      let isCompleted = false; // Đã quay đủ 90 số chưa
+
+      // Kiểm tra trình duyệt hỗ trợ Web Speech API
+      const speechSupported = "speechSynthesis" in window;
+
+      // Các phần tử DOM
+      const numberDisplay = document.getElementById("numberDisplay");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const soundBtn = document.getElementById("soundBtn");
+      const checkBtn = document.getElementById("checkBtn");
+      const timeBtn = document.getElementById("timeBtn");
+      const historyNumbers = document.getElementById("historyNumbers");
+      const historyCount = document.getElementById("historyCount");
+      const timerDisplay = document.getElementById("timer");
+      const currentIntervalDisplay = document.getElementById("currentInterval");
+      const intervalDisplay = document.getElementById("intervalDisplay");
+      const statusActive = document.getElementById("statusActive");
+      const statusPaused = document.getElementById("statusPaused");
+      const statusCompleted = document.getElementById("statusCompleted");
+      const audioStatus = document.getElementById("audioStatus");
+      const audioWarning = document.getElementById("audioWarning");
+      const resultMessage = document.getElementById("resultMessage");
+      const progressCount = document.getElementById("progressCount");
+      const remainingCount = document.getElementById("remainingCount");
+      const progressFill = document.getElementById("progressFill");
+
+      // Modal elements
+      const checkModal = document.getElementById("checkModal");
+      const timeModal = document.getElementById("timeModal");
+      const checkNumberInput = document.getElementById("checkNumberInput");
+      const timeIntervalInput = document.getElementById("timeIntervalInput");
+      const checkConfirmBtn = document.getElementById("checkConfirmBtn");
+      const checkCancelBtn = document.getElementById("checkCancelBtn");
+      const timeConfirmBtn = document.getElementById("timeConfirmBtn");
+      const timeCancelBtn = document.getElementById("timeCancelBtn");
+
+      // Khởi tạo danh sách số từ 1 đến 90
+      function initializeNumbers() {
+        allNumbers = Array.from({ length: totalNumbers }, (_, i) => i + 1);
+        resetAvailableNumbers();
+      }
+
+      // Reset danh sách số chưa quay
+      function resetAvailableNumbers() {
+        availableNumbers = [...allNumbers]; // Sao chép tất cả số
+        history = [];
+        isCompleted = false;
+        updateHistoryDisplay();
+        updateProgress();
+        updateStatusDisplay();
+      }
+
+      // Hàm tạo số ngẫu nhiên từ danh sách số chưa quay
+      function generateRandomNumber() {
+        if (availableNumbers.length === 0) {
+          return null; // Đã hết số
+        }
+
+        const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+        const number = availableNumbers[randomIndex];
+
+        // Xóa số đã quay khỏi danh sách số chưa quay
+        availableNumbers.splice(randomIndex, 1);
+
+        return number;
+      }
+
+      // Hàm đọc số bằng Web Speech API
+      function speakNumber(number) {
+        if (!soundEnabled || !speechSupported) return;
+
+        // Dừng bất kỳ lời nói nào đang diễn ra
+        window.speechSynthesis.cancel();
+
+        // Tạo văn bản để đọc
+        const text = `Số ${number}`;
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        // Cài đặt tiếng Việt nếu có
+        utterance.lang = "vi-VN";
+        utterance.rate = 0.9; // Tốc độ nói (0.1 đến 10)
+        utterance.pitch = 1; // Cao độ (0 đến 2)
+        utterance.volume = 1; // Âm lượng (0 đến 1)
+
+        // Tìm giọng tiếng Việt nếu có
+        const voices = window.speechSynthesis.getVoices();
+        const vietnameseVoice = voices.find(
+          (voice) => voice.lang === "vi-VN" || voice.lang === "vi",
+        );
+
+        if (vietnameseVoice) {
+          utterance.voice = vietnameseVoice;
+        }
+
+        // Bắt đầu nói
+        window.speechSynthesis.speak(utterance);
+
+        // Hiển thị cảnh báo nếu không có giọng tiếng Việt
+        if (!vietnameseVoice) {
+          audioWarning.style.display = "block";
+          audioWarning.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> <strong>Lưu ý:</strong> Trình duyệt của bạn không có giọng đọc tiếng Việt. Có thể sử dụng giọng mặc định (tiếng Anh) hoặc cài đặt giọng tiếng Việt.</p>`;
+        }
+      }
+
+      // Hàm cập nhật hiển thị số với hiệu ứng
+      function updateNumberDisplay(number) {
+        numberDisplay.textContent = number.toString().padStart(2, "0");
+        currentNumber = number;
+
+        // Thêm hiệu ứng xuất hiện
+        numberDisplay.classList.remove("appear");
+        void numberDisplay.offsetWidth; // Kích hoạt lại animation
+        numberDisplay.classList.add("appear");
+
+        // Đọc số nếu âm thanh được bật
+        if (soundEnabled) {
+          speakNumber(number);
+        }
+      }
+
+      // Hàm tạo số mới và thêm vào lịch sử
+      function generateNewNumber() {
+        // Kiểm tra xem đã quay đủ 90 số chưa
+        if (availableNumbers.length === 0) {
+          completeAllNumbers();
+          return;
+        }
+
+        const newNumber = generateRandomNumber();
+
+        if (newNumber === null) {
+          completeAllNumbers();
+          return;
+        }
+
+        updateNumberDisplay(newNumber);
+        addToHistory(newNumber);
+        updateProgress();
+
+        // Reset bộ đếm thời gian
+        timeLeft = intervalTime;
+        updateTimerDisplay();
+      }
+
+      // Hàm xử lý khi đã quay đủ 90 số
+      function completeAllNumbers() {
+        isCompleted = true;
+        pauseAutoMode();
+        updateStatusDisplay();
+
+        showResultMessage("🎉 Chúc mừng! Đã quay đủ 90 số từ 1 đến 90!", true);
+
+        // Đọc thông báo kết thúc
+        if (soundEnabled && speechSupported) {
+          setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(
+              "Đã quay đủ 90 số. Chương trình kết thúc!",
+            );
+            utterance.lang = "vi-VN";
+            window.speechSynthesis.speak(utterance);
+          }, 1000);
+        }
+      }
+
+      // Hàm bắt đầu chế độ tự động
+      function startAutoMode() {
+        if (isAutoRunning || isCompleted) return;
+
+        isAutoRunning = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        updateStatusDisplay();
+
+        // Tạo số đầu tiên ngay lập tức
+        generateNewNumber();
+
+        // Bắt đầu interval tạo số mỗi khoảng thời gian đã đặt
+        autoInterval = setInterval(generateNewNumber, intervalTime * 1000);
+
+        // Bắt đầu bộ đếm thời gian
+        startTimer();
+      }
+
+      // Hàm tạm dừng chế độ tự động
+      function pauseAutoMode() {
+        if (!isAutoRunning) return;
+
+        isAutoRunning = false;
+        clearInterval(autoInterval);
+        clearInterval(timerInterval);
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        updateStatusDisplay();
+
+        // Dừng đọc nếu đang nói
+        if (speechSupported) {
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      // Hàm làm mới/reset
+      function resetAll() {
+        // Dừng chế độ tự động nếu đang chạy
+        pauseAutoMode();
+
+        // Dừng đọc nếu đang nói
+        if (speechSupported) {
+          window.speechSynthesis.cancel();
+        }
+
+        // Reset về 00
+        updateNumberDisplay(0);
+
+        // Reset danh sách số
+        resetAvailableNumbers();
+
+        // Reset bộ đếm thời gian
+        timeLeft = intervalTime;
+        updateTimerDisplay();
+
+        // Ẩn thông báo kết quả
+        hideResultMessage();
+      }
+
+      // Hàm bật/tắt âm thanh
+      function toggleSound() {
+        soundEnabled = !soundEnabled;
+
+        // Cập nhật nút và trạng thái
+        if (soundEnabled) {
+          soundBtn.innerHTML = '<i class="fas fa-volume-up"></i> Tắt tiếng';
+          audioStatus.innerHTML =
+            '<i class="fas fa-volume-up audio-icon"></i> <span>Audio: Bật</span>';
+          audioStatus.style.backgroundColor = "rgba(155, 89, 182, 0.2)";
+          audioStatus.style.borderColor = "#9b59b6";
+
+          // Nếu có số hiện tại, đọc lại
+          if (currentNumber > 0) {
+            speakNumber(currentNumber);
+          }
+        } else {
+          soundBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Bật tiếng';
+          audioStatus.innerHTML =
+            '<i class="fas fa-volume-mute audio-icon"></i> <span>Audio: Tắt</span>';
+          audioStatus.style.backgroundColor = "rgba(149, 165, 166, 0.2)";
+          audioStatus.style.borderColor = "#95a5a6";
+
+          // Dừng đọc nếu đang nói
+          if (speechSupported) {
+            window.speechSynthesis.cancel();
+          }
+        }
+
+        // Lưu trạng thái vào localStorage
+        localStorage.setItem("lotoSoundEnabled", soundEnabled);
+      }
+
+      // Hàm cập nhật hiển thị trạng thái
+      function updateStatusDisplay() {
+        if (isCompleted) {
+          statusActive.style.display = "none";
+          statusPaused.style.display = "none";
+          statusCompleted.style.display = "flex";
+        } else if (isAutoRunning) {
+          statusActive.style.display = "flex";
+          statusPaused.style.display = "none";
+          statusCompleted.style.display = "none";
+        } else {
+          statusActive.style.display = "none";
+          statusPaused.style.display = "flex";
+          statusCompleted.style.display = "none";
+        }
+      }
+
+      // Hàm bắt đầu bộ đếm thời gian
+      function startTimer() {
+        clearInterval(timerInterval);
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+
+          if (timeLeft <= 0) {
+            timeLeft = intervalTime;
+          }
+        }, 1000);
+      }
+
+      // Hàm cập nhật hiển thị bộ đếm thời gian
+      function updateTimerDisplay() {
+        timerDisplay.textContent = timeLeft;
+
+        // Thay đổi màu khi gần đến 0
+        if (timeLeft <= 3) {
+          timerDisplay.style.color = "#e74c3c";
+        } else {
+          timerDisplay.style.color = "#fdbb2d";
+        }
+      }
+
+      // Hàm cập nhật hiển thị thời gian interval
+      function updateIntervalDisplay() {
+        currentIntervalDisplay.textContent = intervalTime;
+        intervalDisplay.textContent = intervalTime;
+      }
+
+      // Hàm cập nhật tiến độ
+      function updateProgress() {
+        const usedCount = history.length;
+        const remaining = totalNumbers - usedCount;
+        const percentage = (usedCount / totalNumbers) * 100;
+
+        progressCount.textContent = usedCount;
+        remainingCount.textContent = remaining;
+        progressFill.style.width = `${percentage}%`;
+      }
+
+      // Hàm thêm số vào lịch sử
+      function addToHistory(number) {
+        // Thêm số vào đầu mảng
+        history.unshift(number);
+
+        updateHistoryDisplay();
+      }
+
+      // Hàm cập nhật hiển thị lịch sử
+      function updateHistoryDisplay() {
+        // Cập nhật số lượng
+        historyCount.textContent = history.length;
+
+        // Xóa nội dung cũ
+        historyNumbers.innerHTML = "";
+
+        // Tạo các số từ 1 đến 90
+        for (let i = 1; i <= totalNumbers; i++) {
+          const numberElement = document.createElement("div");
+          numberElement.className = "history-number";
+          numberElement.id = `history-${i}`;
+          numberElement.textContent = i.toString().padStart(2, "0");
+
+          // Kiểm tra số đã được quay chưa
+          if (history.includes(i)) {
+            numberElement.classList.add("used");
+
+            // Nếu là số gần nhất
+            if (i === currentNumber) {
+              numberElement.classList.add("recent");
+            }
+          }
+
+          historyNumbers.appendChild(numberElement);
+        }
+      }
+
+      // Hàm tìm số trong lịch sử
+      function checkNumberInHistory(number) {
+        return history.includes(number);
+      }
+
+      // Hàm hiển thị kết quả dò số
+      function showResultMessage(message, isSuccess) {
+        resultMessage.textContent = message;
+        resultMessage.className = `result-message ${isSuccess ? "result-success" : "result-failure"}`;
+        resultMessage.style.display = "block";
+
+        // Tự động ẩn sau 5 giây
+        setTimeout(hideResultMessage, 5000);
+      }
+
+      // Hàm ẩn thông báo kết quả
+      function hideResultMessage() {
+        resultMessage.style.display = "none";
+      }
+
+      // Hàm làm nổi bật số tìm thấy trong lịch sử
+      function highlightFoundNumber(number) {
+        // Xóa highlight cũ
+        document.querySelectorAll(".history-number.found").forEach((el) => {
+          el.classList.remove("found");
+        });
+
+        // Highlight số mới
+        const element = document.getElementById(`history-${number}`);
+        if (element) {
+          element.classList.add("found");
+
+          // Cuộn đến vị trí của số
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      // Hàm mở modal dò số
+      function openCheckModal() {
+        checkNumberInput.value = "";
+        checkModal.style.display = "flex";
+        checkNumberInput.focus();
+      }
+
+      // Hàm đóng modal dò số
+      function closeCheckModal() {
+        checkModal.style.display = "none";
+      }
+
+      // Hàm xử lý dò số
+      function handleCheckNumber() {
+        const inputValue = checkNumberInput.value.trim();
+        const number = parseInt(inputValue);
+
+        if (isNaN(number) || number < 1 || number > 90) {
+          alert("Vui lòng nhập số hợp lệ từ 1 đến 90!");
+          checkNumberInput.focus();
+          return;
+        }
+
+        const found = checkNumberInHistory(number);
+
+        if (found) {
+          showResultMessage(
+            `Số ${number} đã xuất hiện trong lịch sử quay số!`,
+            true,
+          );
+
+          // Tạm dừng nếu đang chạy tự động
+          if (isAutoRunning) {
+            pauseAutoMode();
+          }
+
+          // Làm nổi bật số tìm thấy
+          highlightFoundNumber(number);
+        } else {
+          showResultMessage(
+            `Số ${number} chưa xuất hiện trong lịch sử quay số.`,
+            false,
+          );
+        }
+
+        closeCheckModal();
+      }
+
+      // Hàm mở modal chỉnh thời gian
+      function openTimeModal() {
+        timeIntervalInput.value = intervalTime;
+        timeModal.style.display = "flex";
+        timeIntervalInput.focus();
+      }
+
+      // Hàm đóng modal chỉnh thời gian
+      function closeTimeModal() {
+        timeModal.style.display = "none";
+      }
+
+      // Hàm xử lý chỉnh thời gian
+      function handleTimeChange() {
+        const inputValue = timeIntervalInput.value.trim();
+        const newInterval = parseInt(inputValue);
+
+        if (isNaN(newInterval) || newInterval < 1 || newInterval > 10) {
+          alert("Vui lòng nhập thời gian hợp lệ từ 1 đến 10 giây!");
+          timeIntervalInput.focus();
+          return;
+        }
+
+        intervalTime = newInterval;
+        timeLeft = intervalTime;
+
+        // Cập nhật hiển thị
+        updateIntervalDisplay();
+        updateTimerDisplay();
+
+        // Nếu đang chạy tự động, cập nhật interval
+        if (isAutoRunning) {
+          clearInterval(autoInterval);
+          autoInterval = setInterval(generateNewNumber, intervalTime * 1000);
+
+          // Reset bộ đếm
+          startTimer();
+        }
+
+        showResultMessage(
+          `Đã cập nhật thời gian tự động thành ${intervalTime} giây.`,
+          true,
+        );
+
+        // Lưu vào localStorage
+        localStorage.setItem("lotoIntervalTime", intervalTime);
+
+        closeTimeModal();
+      }
+
+      // Hàm kiểm tra và khởi tạo Web Speech API
+      function initSpeech() {
+        if (!speechSupported) {
+          // Nếu không hỗ trợ Web Speech API
+          audioWarning.style.display = "block";
+          audioWarning.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> <strong>Trình duyệt của bạn không hỗ trợ đọc văn bản thành tiếng.</strong> Tính năng audio sẽ không hoạt động. Vui lòng sử dụng Chrome, Edge hoặc Safari phiên bản mới.</p>`;
+          soundBtn.disabled = true;
+          soundBtn.style.opacity = "0.5";
+          soundEnabled = false;
+          audioStatus.innerHTML =
+            '<i class="fas fa-volume-mute audio-icon"></i> <span>Audio: Không hỗ trợ</span>';
+          audioStatus.style.backgroundColor = "rgba(149, 165, 166, 0.2)";
+          audioStatus.style.borderColor = "#95a5a6";
+          return;
+        }
+
+        // Đợi danh sách giọng nói được tải
+        window.speechSynthesis.onvoiceschanged = function () {
+          console.log("Đã tải danh sách giọng nói. Sẵn sàng đọc số.");
+        };
+      }
+
+      // Hàm khởi tạo
+      function init() {
+        // Khởi tạo danh sách số
+        initializeNumbers();
+
+        // Khởi tạo Web Speech API
+        initSpeech();
+
+        // Đọc cài đặt từ localStorage
+        const savedSoundState = localStorage.getItem("lotoSoundEnabled");
+        if (savedSoundState !== null) {
+          soundEnabled = savedSoundState === "true";
+          if (!soundEnabled) {
+            toggleSound(); // Cập nhật giao diện
+          }
+        }
+
+        const savedIntervalTime = localStorage.getItem("lotoIntervalTime");
+        if (savedIntervalTime !== null) {
+          intervalTime = parseInt(savedIntervalTime);
+          timeLeft = intervalTime;
+          updateIntervalDisplay();
+          updateTimerDisplay();
+        }
+
+        // Đặt sự kiện cho các nút chính
+        startBtn.addEventListener("click", startAutoMode);
+        pauseBtn.addEventListener("click", pauseAutoMode);
+        resetBtn.addEventListener("click", resetAll);
+        soundBtn.addEventListener("click", toggleSound);
+        checkBtn.addEventListener("click", openCheckModal);
+        timeBtn.addEventListener("click", openTimeModal);
+
+        // Đặt sự kiện cho modal dò số
+        checkConfirmBtn.addEventListener("click", handleCheckNumber);
+        checkCancelBtn.addEventListener("click", closeCheckModal);
+        checkNumberInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            handleCheckNumber();
+          }
+        });
+
+        // Đặt sự kiện cho modal thời gian
+        timeConfirmBtn.addEventListener("click", handleTimeChange);
+        timeCancelBtn.addEventListener("click", closeTimeModal);
+        timeIntervalInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            handleTimeChange();
+          }
+        });
+
+        // Đóng modal khi click ra ngoài
+        window.addEventListener("click", function (e) {
+          if (e.target === checkModal) {
+            closeCheckModal();
+          }
+          if (e.target === timeModal) {
+            closeTimeModal();
+          }
+        });
+
+        // Khởi tạo hiển thị
+        updateNumberDisplay(0);
+        updateHistoryDisplay();
+        updateTimerDisplay();
+        updateProgress();
+
+        // Thêm hiệu ứng cho số khi click
+        numberDisplay.addEventListener("click", () => {
+          if (!isAutoRunning && !isCompleted) {
+            // Nếu đang không chạy tự động và chưa hoàn thành, click vào số sẽ quay 1 số ngẫu nhiên
+            generateNewNumber();
+          }
+        });
+
+        // Thêm khả năng dùng phím tắt
+        document.addEventListener("keydown", (e) => {
+          // Không dùng phím tắt nếu đang focus vào input
+          if (e.target.tagName === "INPUT") return;
+
+          switch (e.code) {
+            case "Space":
+            case "Enter":
+              if (isAutoRunning) {
+                pauseAutoMode();
+              } else if (!isCompleted) {
+                startAutoMode();
+              }
+              e.preventDefault();
+              break;
+            case "Escape":
+              resetAll();
+              e.preventDefault();
+              break;
+            case "KeyN":
+              if (!isAutoRunning && !isCompleted) {
+                generateNewNumber();
+              }
+              e.preventDefault();
+              break;
+            case "KeyM":
+              toggleSound();
+              e.preventDefault();
+              break;
+            case "KeyC":
+              openCheckModal();
+              e.preventDefault();
+              break;
+            case "KeyT":
+              openTimeModal();
+              e.preventDefault();
+              break;
+          }
+        });
+      }
+
+      // Khởi chạy khi trang đã tải xong
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
